@@ -1,50 +1,39 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import Footer from "./Footer";
 import Header from "./Header";
-
-const products = [
-  {
-    "id": 1,
-    "category": "shoes",
-    "image": "shoe1.jpg",
-    "name": "Hiker",
-    "price": 94.95,
-    "skus": [
-      { "sku": "17", "size": 7 },
-      { "sku": "18", "size": 8 }
-    ],
-    "description": "This rugged boot will get you up the mountain safely."
-  },
-  {
-    "id": 2,
-    "category": "shoes",
-    "image": "shoe2.jpg",
-    "name": "Climber",
-    "price": 78.99,
-    "skus": [
-      { "sku": "28", "size": 8 },
-      { "sku": "29", "size": 9 }
-    ],
-    "description": "Sure-footed traction in slippery conditions."
-  },
-  {
-    "id": 3,
-    "category": "shoes",
-    "image": "shoe3.jpg",
-    "name": "Explorer",
-    "price": 145.95,
-    "skus": [
-      { "sku": "37", "size": 7 },
-      { "sku": "38", "size": 8 },
-      { "sku": "39", "size": 9 }
-    ],
-    "description": "Look stylish while stomping in the mud."
-  }
-]
+import { getProducts } from './services/productService';
+import Spinner from './Spinner';
+ 
 
 
 export default function App() {
+  // Decalre state called size using destructuring. Default size to empty string
+  const [size, setSize] = useState("");
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Can also declare state this way:
+  /*
+  const state = useState("");
+  const size = state[0];
+  const setSize = state[1];
+  */
+  useEffect(() => {
+    async function init() {
+      try {
+        const response = await getProducts("shoes")
+        setProducts(response);
+      } catch (e) {
+        setError(e);
+      } finally {
+       setLoading(false);
+      }
+    }
+    init();
+  }, [])
+
   function renderProduct(p) {
     return (
       <div key={p.id} className="product">
@@ -57,6 +46,17 @@ export default function App() {
     );
   }
 
+  // Derived state
+  const filteredProducts = size ? products.filter((p) => p.skus.find((s) => s.size === parseInt(size))) : products;
+
+  if (error) {
+    throw error;
+  }
+
+  if (loading) {
+    return <Spinner/>;
+  }
+
   return (
     <>
       <div className="content">
@@ -64,14 +64,15 @@ export default function App() {
         <main>
           <section id="filters">
             <label htmlFor="size">Filter by Size:</label>{" "}
-            <select id="size">
+            <select id="size" value={size} onChange={ (e)=> setSize(e.target.value)}>
               <option value="">All sizes</option>
               <option value="7">7</option>
               <option value="8">8</option>
               <option value="9">9</option>
             </select>
+            { size && <h2>Found {filteredProducts.length} items.</h2>}
           </section>
-          <section id="products"> {products.map(renderProduct)} </section>
+          <section id="products"> {filteredProducts.map(renderProduct)} </section>
         </main>
       </div>
       <Footer />
