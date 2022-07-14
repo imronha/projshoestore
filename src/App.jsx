@@ -1,38 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import Footer from "./Footer";
 import Header from "./Header";
-import { getProducts } from './services/productService';
 import Spinner from './Spinner';
+import useFetch from "./services/useFetch";
  
 
 
 export default function App() {
   // Decalre state called size using destructuring. Default size to empty string
   const [size, setSize] = useState("");
-  const [products, setProducts] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-
+  const {data: products, loading, error} = useFetch(
+    "products?category=shoes"
+  )
   // Can also declare state this way:
   /*
   const state = useState("");
   const size = state[0];
   const setSize = state[1];
   */
-  useEffect(() => {
-    async function init() {
-      try {
-        const response = await getProducts("shoes")
-        setProducts(response);
-      } catch (e) {
-        setError(e);
-      } finally {
-       setLoading(false);
-      }
-    }
-    init();
-  }, [])
+
 
   function renderProduct(p) {
     return (
