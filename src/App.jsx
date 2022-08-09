@@ -25,6 +25,12 @@ export default function App() {
     });
   }
 
+  function updateQuantity(sku, quantity) {
+    setCart((items) => {
+      return items.map((i) => (i.sku === sku ? {...i, quantity} : i));
+    });
+  }
+
   return (
     <>
       <div className="content">
@@ -34,7 +40,7 @@ export default function App() {
             <Route path="/" element={<h1> Welcome to Carved Rock fitness</h1>}></Route>            
             <Route path="/:category" element={<Products/>}></Route>
             <Route path="/:category/:id" element={<Detail addToCart={addToCart}/>}></Route>
-            <Route path="/cart" element={<Cart/>}></Route>
+            <Route path="/cart" element={<Cart cart={cart} updateQuantity={updateQuantity}/>}></Route>
           </Routes>
         </main>
       </div>
