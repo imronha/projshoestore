@@ -33,7 +33,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<h1> Welcome to Carved Rock fitness</h1>}></Route>            
             <Route path="/:category" element={<Products/>}></Route>
-            <Route path="/:category/:id" element={<Detail/>}></Route>
+            <Route path="/:category/:id" element={<Detail addToCart={addToCart}/>}></Route>
             <Route path="/cart" element={<Cart/>}></Route>
           </Routes>
         </main>
