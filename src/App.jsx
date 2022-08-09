@@ -13,8 +13,16 @@ export default function App() {
   function addToCart(id, sku){
     setCart((items) => {
       const itemInCart = items.find((i) => i.sku === sku);
-      itemInCart.quantity++
-    })
+      if (itemInCart) {
+        // Return new array with matching item replaced
+        return items.map((i)=> 
+          i.sku === sku ? {...i, quantity: i.quantity + 1} : i
+          );
+      } else {
+        // Return new array with new item appended
+        return [...items, { id, sku, quantity: 1}];
+      }
+    });
   }
 
   return (
