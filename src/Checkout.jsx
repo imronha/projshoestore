@@ -1,4 +1,13 @@
 import React, { useState } from "react";
+import { saveShippingAddress } from "./services/shippingService"
+
+
+const STATUS = {
+    IDLE: "IDLE",
+    SUBMITTED: "SUBMITTED",
+    SUBMITTING: "SUBMITTING",
+    COMPLETED: "COMPLETED",
+}
 
 // Declaring outside component to avoid recreation on each render
 const emptyAddress = {
@@ -8,9 +17,19 @@ const emptyAddress = {
 
 export default function Checkout({ cart }) {
   const [address, setAddress] = useState(emptyAddress);
+  const [status, setStatus] = useState(STATUS.IDLE);
+  const [ saveError, setSaveError] = useState(null);
 
   function handleChange(e) {
-    // TODO
+    e.persist(); // Tells react to persist the event (not necessary in react 17)
+    setAddress((curAddress) => {
+      // 1. Set address to a copy of the current address
+      // 2. Use the inputs id to determine which property to set (using computed property syntax)
+      return {
+        ...curAddress,
+        [e.target.id]: e.target.value,
+      }
+    })
   }
 
   function handleBlur(event) {
@@ -18,8 +37,16 @@ export default function Checkout({ cart }) {
   }
 
   async function handleSubmit(event) {
-    // TODO
+    event.preventDefault();
+    setStatus(STATUS.SUBMITTING);
+    try {
+      await saveShippingAddress(address);
+    } catch (error) {
+      setSaveError(error);
+    }
   }
+
+  if (saveError) throw saveError;
 
   return (
     <>
@@ -59,6 +86,7 @@ export default function Checkout({ cart }) {
             type="submit"
             className="btn btn-primary"
             value="Save Shipping Info"
+            disabled={status === STATUS.SUBMITTING}
           />
         </div>
       </form>
